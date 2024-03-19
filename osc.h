@@ -60,7 +60,7 @@ public:
     
         phi_ = 0;
         note_ = 0;
-        vol_ = 128.f;
+        input_gain_ = 128.f;
         w0_ = 1.0f;
 
         return k_unit_err_none;
@@ -72,7 +72,7 @@ public:
     inline void Reset() {
         phi_ = 0;
         note_ = 0;
-        vol_ = 128.f;
+        input_gain_ = 128.f;
     }
 
     inline void Resume() {
@@ -100,8 +100,8 @@ public:
             if (((int) phi_) >= buffer_size_) {
                 phi_ -= buffer_size_;
             }
-//            *(out_p) = sig * vol_ + (256. - vol_) * (*in_p + *(in_p + 1));
-            *(out_p) = sig * vol_;
+//            *(out_p) = sig * input_gain_ + (256. - input_gain_) * (*in_p + *(in_p + 1));
+            *(out_p) = sig * input_gain_;
         }
     }
 
@@ -111,7 +111,7 @@ public:
             w0_ = value * 0.001 + 0.75f;
             break;
         case ALT:
-            vol_ = 0.25f * value;
+            input_gain_ = 0.25f * value;
             break;
         case GRAIN_SIZE:
             if (value > 8) {
@@ -192,7 +192,7 @@ private:
     float phi_;
     uint8_t note_;
     bool gate_;
-    float vol_;
+    float input_gain_;
     float w0_;
     float delay_line_[max_buffer_size];
     size_t buffer_size_ = max_buffer_size;

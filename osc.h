@@ -33,6 +33,7 @@ public:
         PITCH_HIGH,
         GATE,
         MIX_SOURCE,
+        SOURCE_GATE,
         NUM_PARAMS
     };
 
@@ -92,8 +93,9 @@ public:
 //        const float w0 = osc_w0f_for_note(pitch >> 8, pitch & 0xff);
 
         for (; out_p != out_e; in_p += 2, out_p += 1) {
-            delay_write(*in_p + *(in_p + 1), grain_delay_depth_);
-            float sig = delay_read(phi_);
+            float sig = *in_p + *(in_p + 1);
+            delay_write(sig * (1.f - grain_delay_depth_), grain_delay_depth_);
+            sig = delay_read(phi_);
             phi_ += w0_;
             if (((int) phi_) >= buffer_size_) {
                 phi_ -= buffer_size_;

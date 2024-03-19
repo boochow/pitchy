@@ -208,7 +208,6 @@ private:
     float delay_read(float pos) {
 	// Note: this code doesn't interpolate frac part of pos
 	int32_t p = int(pos);
-	p = (delay_pos_ - (p << 1)) & buffer_mask_;
 	return delay_line_[p];
     }
 };

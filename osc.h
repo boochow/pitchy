@@ -104,7 +104,6 @@ public:
     }
 
     inline void setParameter(uint8_t index, int32_t value) {
-        p_[index] = value;
         switch(index) {
         case SHAPE:
             w0_ = value * 0.001 + 0.75f;
@@ -116,10 +115,12 @@ public:
             if (value > 8) {
                 value = 8;
             }
-            buffer_size_ = 1 << (13 - value);
-            buffer_mask_ = buffer_size_ - 1;
-            delay_pos_ = 2;
-            phi_ = 0.f;
+            if (value != p_[GRAIN_SIZE]) {
+                buffer_size_ = 1 << (13 - value);
+                buffer_mask_ = buffer_size_ - 1;
+                delay_pos_ = 2;
+                phi_ = 0.f;
+            }
             break;
         case GRAIN_DEPTH:
             grain_delay_depth_ = 0.01 * value;
@@ -127,6 +128,7 @@ public:
         default:
             break;
         }
+        p_[index] = value;
     }
 
     inline int32_t getParameterValue(uint8_t index) const {

@@ -14,8 +14,9 @@
 #include "utils/int_math.h"   // for clipminmaxi32()
 
 constexpr uint8_t base_note = 53;
-constexpr size_t buffer_size = 1 << 12;
-constexpr size_t buffer_mask = buffer_size - 1;
+// max buffer size = 32KB = 4096samples * float(4bytes) * 2 channels
+// 4096 samples = 85.3 msec
+constexpr size_t max_buffer_size = 1 << 13;
 
 inline float note2freq(float note) {
     return (440.f / 32) * powf(2, (note - 9.0) / 12);
@@ -26,6 +27,12 @@ public:
     enum {
         SHAPE = 0U,
         ALT,
+        GRAIN_SIZE,
+        MIX,
+        PITCH_LOW,
+        PITCH_HIGH,
+        GATE,
+        MIX_SOURCE,
         NUM_PARAMS
     };
 
@@ -88,8 +95,8 @@ public:
             delay_write(in_p);
             float sig = delay_read(phi_) + delay_read(phi_ + 1);
             phi_ += 2 * w0_;
-            if (((int) phi_) >= buffer_size) {
-                phi_ -= buffer_size;
+            if (((int) phi_) >= buffer_size_) {
+                phi_ -= buffer_size_;
             }
 //            *(out_p) = sig * vol_ + (256. - vol_) * (*in_p + *(in_p + 1));
             *(out_p) = sig * vol_;
@@ -97,12 +104,22 @@ public:
     }
 
     inline void setParameter(uint8_t index, int32_t value) {
+        p_[index] = value;
         switch(index) {
         case SHAPE:
             w0_ = value * 0.001 + 0.75f;
             break;
         case ALT:
             vol_ = 0.25f * value;
+            break;
+        case GRAIN_SIZE:
+            if (value > 8) {
+                value = 8;
+            }
+            buffer_size_ = 1 << (13 - value);
+            buffer_mask_ = buffer_size_ - 1;
+            delay_pos_ = 2;
+            phi_ = 0.f;
             break;
         default:
             break;
@@ -135,7 +152,7 @@ public:
         w0_ = note_hz / base_hz;
         phi_ = delay_pos_ - 4;
         if (phi_ < 0) {
-            phi_ += buffer_size;
+            phi_ += buffer_size_;
         }
     }
 
@@ -164,24 +181,28 @@ private:
 
     unit_runtime_desc_t runtime_desc_;
 
+    int32_t p_[11];
     float phi_;
     uint8_t note_;
     bool gate_;
     float vol_;
     float w0_;
-    float delay_line_[buffer_size];
+    float delay_line_[max_buffer_size];
+    size_t buffer_size_ = max_buffer_size;
+    size_t buffer_mask_ = buffer_size_ - 1;
+    
     int32_t delay_pos_;
 
     void delay_write(const float *sig) {
         delay_line_[delay_pos_++] = *sig;
         delay_line_[delay_pos_++] = *(sig + 1);
-	delay_pos_ = delay_pos_ & buffer_mask;
+	delay_pos_ = delay_pos_ & buffer_mask_;
     }
 
     float delay_read(float pos) {
 	// Note: this code doesn't interpolate frac part of pos
 	int32_t p = int(pos);
-	p = (delay_pos_ - (p << 1)) & buffer_mask;
+	p = (delay_pos_ - (p << 1)) & buffer_mask_;
 	return delay_line_[p];
     }
 };

@@ -50,7 +50,7 @@ const __unit_header unit_header_t unit_header = {
     .unit_id = 0x01010000,  // Product number(01),Unit type(01=Synth),reserved
     .version = 0x00010000U,
     .name = "PSHFTR",
-    .num_params = 2,
+    .num_params = 3,
     .params = {
         // Format:
         // min, max, center, default, type, frac. bits, frac. mode, <reserved>, name
@@ -62,7 +62,7 @@ const __unit_header unit_header_t unit_header = {
         {0, 1023, 0, 0, k_unit_param_type_none, 0, 0, 0, {"ALT"}},
 
         // 8 Edit menu parameters
-        {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
+        {0, 8, 0, 0, k_unit_param_type_none, 0, 0, 0, {"SIZE"}},
         {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
         {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
         {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},

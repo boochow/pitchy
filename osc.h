@@ -28,7 +28,7 @@ public:
         SHAPE = 0U,
         ALT,
         GRAIN_SIZE,
-        MIX,
+        GRAIN_DEPTH,
         PITCH_LOW,
         PITCH_HIGH,
         GATE,
@@ -92,9 +92,9 @@ public:
 //        const float w0 = osc_w0f_for_note(pitch >> 8, pitch & 0xff);
 
         for (; out_p != out_e; in_p += 2, out_p += 1) {
-            delay_write(in_p);
-            float sig = delay_read(phi_) + delay_read(phi_ + 1);
-            phi_ += 2 * w0_;
+            delay_write(*in_p + *(in_p + 1), grain_delay_depth_);
+            float sig = delay_read(phi_);
+            phi_ += w0_;
             if (((int) phi_) >= buffer_size_) {
                 phi_ -= buffer_size_;
             }
@@ -120,6 +120,9 @@ public:
             buffer_mask_ = buffer_size_ - 1;
             delay_pos_ = 2;
             phi_ = 0.f;
+            break;
+        case GRAIN_DEPTH:
+            grain_delay_depth_ = 0.01 * value;
             break;
         default:
             break;
@@ -190,12 +193,11 @@ private:
     float delay_line_[max_buffer_size];
     size_t buffer_size_ = max_buffer_size;
     size_t buffer_mask_ = buffer_size_ - 1;
-    
+    float grain_delay_depth_;
     int32_t delay_pos_;
 
-    void delay_write(const float *sig) {
-        delay_line_[delay_pos_++] = *sig;
-        delay_line_[delay_pos_++] = *(sig + 1);
+    void delay_write(const float sig, const float mix) {
+        delay_line_[delay_pos_++] = sig + mix * delay_line_[delay_pos_];
 	delay_pos_ = delay_pos_ & buffer_mask_;
     }
 

@@ -15,6 +15,7 @@
 
 // the note number which plays grain in the normal pitch
 constexpr uint8_t base_note = 53;
+constexpr float base_hz = 174.61411571650194; // note2freq(base_note)
 // max buffer size = 32KB = 8192samples * float(4bytes)
 // (note: 8192 samples = 170.66 msec)
 constexpr size_t max_buffer_size = 1 << 13;
@@ -23,6 +24,7 @@ inline float note2freq(float note) {
     return (440.f / 32) * powf(2, (note - 9.0) / 12);
 }
 
+
 class Osc {
 public:
     enum {
@@ -30,8 +32,8 @@ public:
         ALT,         // input gain
         GRAIN_SIZE,  // the size of the grain
         GRAIN_DEPTH, // the mix level of "old" grain sound
-        PITCH_LOW,   // the lowest pitch for SHAPE parameter
-        PITCH_HIGH,  // the highest pitch for SHAPE parameter
+        WIDTH_DOWN,  // the max transpose-down width for SHAPE parameter
+        WIDTH_UP,    // the max transpose-up width for SHAPE parameter
         GATE,        // if true, key off makes the osc off
         MIX_SOURCE,  // the mix level of the input sound
         SOURCE_GATE, // if true, key off makes the input sound off
@@ -110,7 +112,8 @@ public:
     inline void setParameter(uint8_t index, int32_t value) {
         switch(index) {
         case SHAPE:
-            w0_ = value * 0.001 + 0.75f;
+            w0_ = shape_w0_value( (value < 500) ? (value - 500) * 0.002 :
+                                  (value > 523) ? (value - 523) * 0.002 : 0);
             break;
         case ALT:
             input_gain_ = 1.f * value / 170.5; // 0..6.0
@@ -130,7 +133,11 @@ public:
         case GRAIN_DEPTH:
             grain_delay_depth_ = 0.01 * value;
             break;
-        case PITCH_LOW:
+        case WIDTH_DOWN:
+            w_down_ = -value;
+            break;
+        case WIDTH_UP:
+            w_up_ = value;
             break;
         default:
             break;
@@ -139,7 +146,7 @@ public:
     }
 
     inline int32_t getParameterValue(uint8_t index) const {
-        return 0;
+        return p_[index];
     }
 
     inline const char * getParameterStrValue(uint8_t index, int32_t value) const {
@@ -157,9 +164,8 @@ public:
     inline void NoteOn(uint8_t note, uint8_t velo) {
         note_ = note;
         gate_ = true;
-//        float base_hz = osc_notehzf(base_note);
+//        float bas_hez = osc_notehzf(base_note);
 //        float note_hz = osc_notehzf(note);
-        float base_hz = note2freq(base_note);
         float note_hz = note2freq(note);
         w0_ = note_hz / base_hz;
         phi_ = delay_pos_ - 4;
@@ -204,6 +210,19 @@ private:
     size_t buffer_mask_ = buffer_size_ - 1;
     float grain_delay_depth_;
     int32_t delay_pos_;
+    int8_t w_down_;
+    int8_t w_up_;
+
+    // calcurate w0 for SHIFT knob
+    float shape_w0_value(float p) { // -1.0 <= p <= 1.0
+        float n = note_;
+        if (p < 0) {
+            n += w_down_ * p;
+        } else {
+            n += w_up_ * p;
+        }
+        return note2freq(n) / base_hz;
+    }
 
     void delay_write(const float sig, const float mix) {
         delay_line_[delay_pos_++] = sig + mix * delay_line_[delay_pos_];

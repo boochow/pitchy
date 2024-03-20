@@ -94,16 +94,16 @@ public:
 //        const float w0 = osc_w0f_for_note(pitch >> 8, pitch & 0xff);
 
         for (; out_p != out_e; in_p += 2, out_p += 1) {
-            float sig = *in_p + *(in_p + 1);
+            float in_sig = *in_p + *(in_p + 1);
 
-            delay_write(sig, grain_delay_depth_);
-            sig = delay_read(phi_);
+            delay_write(in_sig, grain_delay_depth_);
+            float out_sig = delay_read(phi_);
             phi_ += w0_;
             if (((int) phi_) >= buffer_size_) {
                 phi_ -= buffer_size_;
             }
 //            *(out_p) = sig * input_gain_ + (256. - input_gain_) * (*in_p + *(in_p + 1));
-            *(out_p) = osc_softclipf(0.1f, sig * input_gain_);
+            *(out_p) = osc_softclipf(0.1f, out_sig * input_gain_);
         }
     }
 
@@ -129,6 +129,8 @@ public:
             break;
         case GRAIN_DEPTH:
             grain_delay_depth_ = 0.01 * value;
+            break;
+        case PITCH_LOW:
             break;
         default:
             break;

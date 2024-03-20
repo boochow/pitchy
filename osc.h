@@ -103,7 +103,7 @@ public:
                 phi_ -= buffer_size_;
             }
 //            *(out_p) = sig * input_gain_ + (256. - input_gain_) * (*in_p + *(in_p + 1));
-            *(out_p) = sig * input_gain_;
+            *(out_p) = osc_softclipf(0.1f, sig * input_gain_);
         }
     }
 

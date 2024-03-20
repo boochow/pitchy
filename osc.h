@@ -13,9 +13,10 @@
 #include "osc_api.h" // for osc_notehzf()
 #include "utils/int_math.h"   // for clipminmaxi32()
 
+// the note number which plays grain in the normal pitch
 constexpr uint8_t base_note = 53;
-// max buffer size = 32KB = 4096samples * float(4bytes) * 2 channels
-// 4096 samples = 85.3 msec
+// max buffer size = 32KB = 8192samples * float(4bytes)
+// (note: 8192 samples = 170.66 msec)
 constexpr size_t max_buffer_size = 1 << 13;
 
 inline float note2freq(float note) {
@@ -25,15 +26,15 @@ inline float note2freq(float note) {
 class Osc {
 public:
     enum {
-        SHAPE = 0U,
-        ALT,
-        GRAIN_SIZE,
-        GRAIN_DEPTH,
-        PITCH_LOW,
-        PITCH_HIGH,
-        GATE,
-        MIX_SOURCE,
-        SOURCE_GATE,
+        SHAPE = 0U,  // fine pitch
+        ALT,         // input gain
+        GRAIN_SIZE,  // the size of the grain
+        GRAIN_DEPTH, // the mix level of "old" grain sound
+        PITCH_LOW,   // the lowest pitch for SHAPE parameter
+        PITCH_HIGH,  // the highest pitch for SHAPE parameter
+        GATE,        // if true, key off makes the osc off
+        MIX_SOURCE,  // the mix level of the input sound
+        SOURCE_GATE, // if true, key off makes the input sound off
         NUM_PARAMS
     };
 

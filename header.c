@@ -62,7 +62,7 @@ const __unit_header unit_header_t unit_header = {
         {0, 1023, 511, 431, k_unit_param_type_none, 0, 0, 0, {"ALT"}},
 
         // 8 Edit menu parameters
-        {0, 8, 0, 0, k_unit_param_type_none, 0, 0, 0, {"SIZE"}},
+        {0, 8, 0, 2, k_unit_param_type_none, 0, 0, 0, {"SIZE"}},
         {0, 100, 50, 0, k_unit_param_type_percent, 0, 0, 0, {"DPTH"}},
         {-24, 0, -12, -2, k_unit_param_type_none, 0, 0, 0, {"DOWN"}},
         {0, 24, 12, 2, k_unit_param_type_none, 0, 0, 0, {"UP"}},

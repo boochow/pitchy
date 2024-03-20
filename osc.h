@@ -44,10 +44,10 @@ public:
     inline int8_t Init(const unit_runtime_desc_t * desc) {
         if (!desc)
             return k_unit_err_undef;
-    
+
         if (desc->target != unit_header.target)
             return k_unit_err_target;
-    
+
         if (!UNIT_API_IS_COMPAT(desc->api))
             return k_unit_err_api_version;
 
@@ -58,7 +58,7 @@ public:
             return k_unit_err_geometry;
 
         runtime_desc_ = *desc;
-    
+
         phi_ = 0;
         note_ = 0;
         input_gain_ = 128.f;

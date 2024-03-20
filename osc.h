@@ -63,11 +63,6 @@ public:
 
         runtime_desc_ = *desc;
 
-        phi_ = 0;
-        note_ = 0;
-        input_gain_ = 128.f;
-        w0_ = 1.0f;
-
         return k_unit_err_none;
     }
 
@@ -90,12 +85,6 @@ public:
         const float * __restrict in_p = in;
         float * __restrict out_p = out;
         const float * out_e = out_p + frames;  // assuming mono output
-
-        /*
-        const unit_runtime_osc_context_t *ctxt = static_cast<const unit_runtime_osc_context_t *>(runtime_desc_.hooks.runtime_context);
-        const float w0 = osc_w0f_for_note((ctxt->pitch)>>8, ctxt->pitch & 0xFF);
-        */
-//        const float w0 = osc_w0f_for_note(pitch >> 8, pitch & 0xff);
 
         for (; out_p != out_e; in_p += 2, out_p += 1) {
             float in_sig = *in_p + *(in_p + 1);
@@ -178,11 +167,9 @@ public:
     inline void NoteOn(uint8_t note, uint8_t velo) {
         note_ = note;
         gate_ = 1;
-//        float bas_hez = osc_notehzf(base_note);
-//        float note_hz = osc_notehzf(note);
         float note_hz = note2freq(note);
         w0_ = note_hz / base_hz;
-        phi_ = grain_pos_ - 4;
+        phi_ = grain_pos_ - 2;
         if (phi_ < 0) {
             phi_ += buffer_size_;
         }
@@ -213,21 +200,21 @@ private:
 
     unit_runtime_desc_t runtime_desc_;
 
-    int32_t p_[11];
-    float phi_;
-    uint8_t note_;
-    int32_t gate_;
-    float input_gain_;
-    float w0_;
+    int32_t p_[10] = {511, 431, 2, 0, -2, 2, 100, 0, 0, 0};
+    float phi_ = 0.f;
+    uint8_t note_ = base_note;
+    int32_t gate_ = 0;
+    float input_gain_ = 6.89f;
+    float w0_ = 1.f;
     float grain_buf_[max_buffer_size];
-    size_t buffer_size_ = max_buffer_size;
+    size_t buffer_size_ = 1 << (13 - p_[2]);
     size_t buffer_mask_ = buffer_size_ - 1;
-    float grain_delay_depth_;
-    int32_t grain_pos_;
-    uint8_t w_down_;
-    uint8_t w_up_;
-    float dry_;
-    float wet_;
+    float grain_delay_depth_ = 0.f;
+    int32_t grain_pos_ = 2;
+    uint8_t w_down_ = 2;
+    uint8_t w_up_ = 2;
+    float dry_ = 0.f;
+    float wet_ = 1.f;
     int32_t gate_dry_ = 0;
     int32_t gate_wet_ = 0;
 

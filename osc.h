@@ -2,6 +2,8 @@
 /*
  *  File: osc.h
  *
+ *  oscillator for Pitchy
+ *
  */
 
 #include <atomic>

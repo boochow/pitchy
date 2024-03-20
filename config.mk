@@ -2,7 +2,7 @@
 # Configuration for Makefile
 #
 
-PROJECT := pitch_shifter
+PROJECT := pitchy
 PROJECT_TYPE := osc
 
 ##############################################################################

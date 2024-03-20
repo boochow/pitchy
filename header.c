@@ -49,7 +49,7 @@ const __unit_header unit_header_t unit_header = {
     .dev_id = 0x42636877U,  // "Bchw"
     .unit_id = 0x01010000,  // Product number(01),Unit type(01=Synth),reserved
     .version = 0x00010000U,
-    .name = "PSHFTR",
+    .name = "Pitchy",
     .num_params = 9,
     .params = {
         // Format:

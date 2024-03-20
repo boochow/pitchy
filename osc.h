@@ -113,7 +113,8 @@ public:
             w0_ = value * 0.001 + 0.75f;
             break;
         case ALT:
-            input_gain_ = 0.25f * value;
+            input_gain_ = 1.f * value / 170.5; // 0..6.0
+            input_gain_ = 0.5f + input_gain_ * input_gain_; // 0.5..36.5
             break;
         case GRAIN_SIZE:
             if (value > 8) {

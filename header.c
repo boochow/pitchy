@@ -44,13 +44,13 @@
 
 const __unit_header unit_header_t unit_header = {
     .header_size = sizeof(unit_header_t),                  // Size of this header. Leave as is.
-    .target = UNIT_TARGET_PLATFORM | k_unit_module_osc,    // Target platform and module pair for this unit
+    .target = UNIT_TARGET_PLATFORM | k_unit_module_osc,    // Tagret platform and module pair for this unit
     .api = UNIT_API_VERSION,                               // API version for which unit was built. See runtime.h
     .dev_id = 0x42636877U,  // "Bchw"
     .unit_id = 0x01010000,  // Product number(01),Unit type(01=Synth),reserved
     .version = 0x00010000U,
     .name = "PSHFTR",
-    .num_params = 7,
+    .num_params = 9,
     .params = {
         // Format:
         // min, max, center, default, type, frac. bits, frac. mode, <reserved>, name
@@ -67,7 +67,7 @@ const __unit_header unit_header_t unit_header = {
         {-24, 0, -12, -2, k_unit_param_type_none, 0, 0, 0, {"DOWN"}},
         {0, 24, 12, 2, k_unit_param_type_none, 0, 0, 0, {"UP"}},
         {-100, 100, 0, 100, k_unit_param_type_drywet, 0, 0, 0, {"MIX"}},
-        {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
-        {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
+        {0, 1, 0, 0, k_unit_param_type_onoff, 0, 0, 0, {"GT-O"}},
+        {0, 1, 0, 0, k_unit_param_type_onoff, 0, 0, 0, {"GT-I"}},
         {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}}},
 };

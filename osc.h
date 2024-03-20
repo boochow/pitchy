@@ -36,7 +36,7 @@ public:
         WIDTH_UP,    // the max transpose-up width for SHAPE parameter
         MIX_DRYWET,  // the mix level of the dry/wet sound
         GATE,        // if true, key off makes the osc off
-        SOURCE_GATE, // if true, key off makes the input sound off
+        GATE_SOURCE, // if true, key off makes the input sound off
         NUM_PARAMS
     };
 
@@ -104,7 +104,9 @@ public:
             if (((int) phi_) >= buffer_size_) {
                 phi_ -= buffer_size_;
             }
-            out_sig = wet_ * out_sig + dry_ * in_sig;
+            int32_t gate_wet = (gate_wet_) ? gate_ : 1;
+            int32_t gate_dry = (gate_dry_) ? gate_ : 1;
+            out_sig = wet_ * out_sig * gate_wet + dry_ * in_sig * gate_dry;
             *(out_p) = osc_softclipf(0.1f, out_sig * input_gain_);
         }
     }
@@ -142,6 +144,12 @@ public:
         case MIX_DRYWET:
             dry_ = 0.005f * (100 - value);
             wet_ = 0.005f * (100 + value) ;
+        case GATE:
+            gate_wet_ = value;
+            break;
+        case GATE_SOURCE:
+            gate_dry_ = value;
+            break;
         default:
             break;
         }
@@ -166,7 +174,7 @@ public:
 
     inline void NoteOn(uint8_t note, uint8_t velo) {
         note_ = note;
-        gate_ = true;
+        gate_ = 1;
 //        float bas_hez = osc_notehzf(base_note);
 //        float note_hz = osc_notehzf(note);
         float note_hz = note2freq(note);
@@ -179,7 +187,7 @@ public:
 
     inline void NoteOff(uint8_t note) {
         (uint8_t)note;
-        gate_ = false;
+        gate_ = 0;
     }
 
     inline void AllNoteOff() {
@@ -205,7 +213,7 @@ private:
     int32_t p_[11];
     float phi_;
     uint8_t note_;
-    bool gate_;
+    int32_t gate_;
     float input_gain_;
     float w0_;
     float delay_line_[max_buffer_size];
@@ -213,10 +221,12 @@ private:
     size_t buffer_mask_ = buffer_size_ - 1;
     float grain_delay_depth_;
     int32_t delay_pos_;
-    int8_t w_down_;
-    int8_t w_up_;
+    uint8_t w_down_;
+    uint8_t w_up_;
     float dry_;
     float wet_;
+    int32_t gate_dry_ = 0;
+    int32_t gate_wet_ = 0;
 
     // calcurate w0 for SHIFT knob
     float shape_w0_value(float p) { // -1.0 <= p <= 1.0

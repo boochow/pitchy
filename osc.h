@@ -98,8 +98,8 @@ public:
         for (; out_p != out_e; in_p += 2, out_p += 1) {
             float in_sig = *in_p + *(in_p + 1);
 
-            delay_write(in_sig, grain_delay_depth_);
-            float out_sig = delay_read(phi_);
+            grain_write(in_sig, grain_delay_depth_);
+            float out_sig = grain_read(phi_);
             phi_ += w0_;
             if (((int) phi_) >= buffer_size_) {
                 phi_ -= buffer_size_;
@@ -128,7 +128,7 @@ public:
             if (value != p_[GRAIN_SIZE]) {
                 buffer_size_ = 1 << (13 - value);
                 buffer_mask_ = buffer_size_ - 1;
-                delay_pos_ = 2;
+                grain_pos_ = 2;
                 phi_ = 0.f;
             }
             break;
@@ -144,6 +144,7 @@ public:
         case MIX_DRYWET:
             dry_ = 0.005f * (100 - value);
             wet_ = 0.005f * (100 + value) ;
+            break;
         case GATE:
             gate_wet_ = value;
             break;
@@ -179,7 +180,7 @@ public:
 //        float note_hz = osc_notehzf(note);
         float note_hz = note2freq(note);
         w0_ = note_hz / base_hz;
-        phi_ = delay_pos_ - 4;
+        phi_ = grain_pos_ - 4;
         if (phi_ < 0) {
             phi_ += buffer_size_;
         }
@@ -216,11 +217,11 @@ private:
     int32_t gate_;
     float input_gain_;
     float w0_;
-    float delay_line_[max_buffer_size];
+    float grain_buf_[max_buffer_size];
     size_t buffer_size_ = max_buffer_size;
     size_t buffer_mask_ = buffer_size_ - 1;
     float grain_delay_depth_;
-    int32_t delay_pos_;
+    int32_t grain_pos_;
     uint8_t w_down_;
     uint8_t w_up_;
     float dry_;
@@ -239,14 +240,14 @@ private:
         return note2freq(n) / base_hz;
     }
 
-    void delay_write(const float sig, const float mix) {
-        delay_line_[delay_pos_++] = sig + mix * delay_line_[delay_pos_];
-	delay_pos_ = delay_pos_ & buffer_mask_;
+    void grain_write(const float sig, const float mix) {
+        grain_buf_[grain_pos_++] = sig + mix * grain_buf_[grain_pos_];
+	grain_pos_ = grain_pos_ & buffer_mask_;
     }
 
-    float delay_read(float pos) {
+    float grain_read(float pos) {
 	// Note: this code doesn't interpolate frac part of pos
 	int32_t p = int(pos);
-	return delay_line_[p];
+	return grain_buf_[p];
     }
 };

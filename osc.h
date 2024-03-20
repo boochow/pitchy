@@ -34,8 +34,8 @@ public:
         GRAIN_DEPTH, // the mix level of "old" grain sound
         WIDTH_DOWN,  // the max transpose-down width for SHAPE parameter
         WIDTH_UP,    // the max transpose-up width for SHAPE parameter
+        MIX_DRYWET,  // the mix level of the dry/wet sound
         GATE,        // if true, key off makes the osc off
-        MIX_SOURCE,  // the mix level of the input sound
         SOURCE_GATE, // if true, key off makes the input sound off
         NUM_PARAMS
     };
@@ -104,7 +104,7 @@ public:
             if (((int) phi_) >= buffer_size_) {
                 phi_ -= buffer_size_;
             }
-//            *(out_p) = sig * input_gain_ + (256. - input_gain_) * (*in_p + *(in_p + 1));
+            out_sig = wet_ * out_sig + dry_ * in_sig;
             *(out_p) = osc_softclipf(0.1f, out_sig * input_gain_);
         }
     }
@@ -139,6 +139,9 @@ public:
         case WIDTH_UP:
             w_up_ = value;
             break;
+        case MIX_DRYWET:
+            dry_ = 0.005f * (100 - value);
+            wet_ = 0.005f * (100 + value) ;
         default:
             break;
         }
@@ -212,6 +215,8 @@ private:
     int32_t delay_pos_;
     int8_t w_down_;
     int8_t w_up_;
+    float dry_;
+    float wet_;
 
     // calcurate w0 for SHIFT knob
     float shape_w0_value(float p) { // -1.0 <= p <= 1.0

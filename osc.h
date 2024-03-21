@@ -102,6 +102,7 @@ public:
     }
 
     inline void setParameter(uint8_t index, int32_t value) {
+        p_[index] = value;
         switch(index) {
         case SHAPE:
             w0_ = shape_w0_value( (value < 500) ? (value - 500) * 0.002 :
@@ -144,7 +145,6 @@ public:
         default:
             break;
         }
-        p_[index] = value;
     }
 
     inline int32_t getParameterValue(uint8_t index) const {

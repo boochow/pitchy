@@ -236,7 +236,9 @@ private:
 
     float grain_read(float pos) {
 	// Note: this code doesn't interpolate frac part of pos
-	int32_t p = int(pos);
-	return grain_buf_[p];
+	int32_t p0 = int(pos);
+        float frac = pos - p0;
+        int32_t p1 = (p0 + 1) & buffer_mask_;
+	return linintf(frac, grain_buf_[p0], grain_buf_[p1]);
     }
 };

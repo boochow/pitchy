@@ -69,9 +69,10 @@ public:
     }
 
     inline void Reset() {
-        phi_ = 0;
-        note_ = 0;
-        input_gain_ = 128.f;
+        phi_ = 0.f;
+        gate_ = 0;
+        input_gain_ = 6.89f;
+        w0_ = 1.f;
     }
 
     inline void Resume() {
@@ -217,7 +218,7 @@ private:
     int32_t gate_dry_ = 0;
     int32_t gate_wet_ = 0;
 
-    // calcurate w0 for SHIFT knob
+    // calcurate w0 for the SHAPE knob
     float shape_w0_value(float p) { // -1.0 <= p <= 1.0
         float n = note_;
         if (p < 0) {

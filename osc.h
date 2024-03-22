@@ -102,8 +102,7 @@ public:
         }
     }
 
-    inline void setParameter(uint8_t index, int32_t value) {
-        p_[index] = value;
+    inline void setParameter(uint8_t index, const int32_t value) {
         switch(index) {
         case SHAPE:
             w0_ = shape_w0_value( (value < 500) ? (value - 500) * 0.002 :
@@ -114,9 +113,6 @@ public:
             input_gain_ = 0.5f + input_gain_ * input_gain_; // 0.5..36.5
             break;
         case GRAIN_SIZE:
-            if (value > 8) {
-                value = 8;
-            }
             if (value != p_[GRAIN_SIZE]) {
                 buffer_size_ = 1 << (13 - value);
                 buffer_mask_ = buffer_size_ - 1;
@@ -146,6 +142,7 @@ public:
         default:
             break;
         }
+        p_[index] = value;
     }
 
     inline int32_t getParameterValue(uint8_t index) const {

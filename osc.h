@@ -94,9 +94,7 @@ public:
             grain_write(in_sig, grain_delay_depth_);
             float out_sig = grain_read(phi_);
             phi_ += w0_;
-            if (((int) phi_) >= buffer_size_) {
-                phi_ -= buffer_size_;
-            }
+            phi_ = ((int) phi_ & buffer_mask_) + (phi_ - (int) phi_);
             out_sig = wet_ * out_sig * gate_wet + dry_ * in_sig * gate_dry;
             *(out_p) = osc_softclipf(0.1f, out_sig * input_gain_);
         }

@@ -47,7 +47,7 @@ const __unit_header unit_header_t unit_header = {
     .target = UNIT_TARGET_PLATFORM | k_unit_module_osc,    // Tagret platform and module pair for this unit
     .api = UNIT_API_VERSION,                               // API version for which unit was built. See runtime.h
     .dev_id = 0x42636877U,  // "Bchw"
-    .unit_id = 0x01010000,  // Product number(01),Unit type(01=Synth),reserved
+    .unit_id = 0x01010000,  // Product number(01),Unit type(01=OSC),reserved
     .version = 0x00010000U,
     .name = "Pitchy",
     .num_params = 9,

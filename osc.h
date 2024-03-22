@@ -85,6 +85,8 @@ public:
         const float * __restrict in_p = in;
         float * __restrict out_p = out;
         const float * out_e = out_p + frames;  // assuming mono output
+        const int32_t gate_wet = (gate_wet_) ? gate_ : 1;
+        const int32_t gate_dry = (gate_dry_) ? gate_ : 1;
 
         for (; out_p != out_e; in_p += 2, out_p += 1) {
             float in_sig = *in_p + *(in_p + 1);
@@ -95,8 +97,6 @@ public:
             if (((int) phi_) >= buffer_size_) {
                 phi_ -= buffer_size_;
             }
-            int32_t gate_wet = (gate_wet_) ? gate_ : 1;
-            int32_t gate_dry = (gate_dry_) ? gate_ : 1;
             out_sig = wet_ * out_sig * gate_wet + dry_ * in_sig * gate_dry;
             *(out_p) = osc_softclipf(0.1f, out_sig * input_gain_);
         }

@@ -12,7 +12,6 @@
 #include <climits>
 
 #include "unit_osc.h"   // Note: Include base definitions for osc units
-#include "utils/int_math.h"   // for clipminmaxi32()
 
 // the note number which plays grain in the normal pitch
 constexpr uint8_t base_note = 53;

@@ -91,9 +91,17 @@ public:
             float in_sig = *in_p + *(in_p + 1);
 
             grain_write(in_sig, grain_delay_depth_);
-            float out_sig = grain_read(phi_);
+
+            // the output is the 1:1 mix of out_0 and out_1
+            // where out_1 precedes out_0 by (buffer_size_ / 2).
+            float out_0 = grain_read(phi_) * buf_distance(phi_, grain_pos_);
+            float phi1 = ((int) phi_ + (buffer_size_ >> 1));
+            phi1 = ((int) phi1 & buffer_mask_) + (phi1 - (int) phi1);
+            float out_1 = grain_read(phi1) * buf_distance(phi1, grain_pos_);
+
             phi_ += w0_;
             phi_ = ((int) phi_ & buffer_mask_) + (phi_ - (int) phi_);
+            float out_sig = 0.5f * out_0 + 0.5f * out_1;
             out_sig = wet_ * out_sig * gate_wet + dry_ * in_sig * gate_dry;
             *(out_p) = osc_softclipf(0.1f, out_sig * input_gain_);
         }
@@ -224,8 +232,8 @@ private:
     }
 
     void grain_write(const float sig, const float mix) {
-        grain_buf_[grain_pos_++] = sig + mix * grain_buf_[grain_pos_];
-	grain_pos_ = grain_pos_ & buffer_mask_;
+        grain_buf_[grain_pos_] = sig + mix * grain_buf_[grain_pos_];
+        grain_pos_ = ++grain_pos_ & buffer_mask_;
     }
 
     float grain_read(float pos) {
@@ -233,5 +241,14 @@ private:
         float frac = pos - p0;
         int32_t p1 = (p0 + 1) & buffer_mask_;
 	return linintf(frac, grain_buf_[p0], grain_buf_[p1]);
+    }
+
+    // returns 0 when p0 = p1; 1.0 when | p0 - p1 | = buf_size_ / 2
+    float buf_distance(float p0, float p1) {
+        float result = p1 > p0 ? p1 - p0 : p0 - p1;
+        if (result > (buffer_size_ >> 1)) {
+            result = buffer_size_ - result;
+        }
+        return result * 2 / buffer_size_;
     }
 };

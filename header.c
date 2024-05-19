@@ -48,7 +48,7 @@ const __unit_header unit_header_t unit_header = {
     .api = UNIT_API_VERSION,                               // API version for which unit was built. See runtime.h
     .dev_id = 0x42636877U,  // "Bchw"
     .unit_id = 0x01010000,  // Product number(01),Unit type(01=OSC),reserved
-    .version = 0x00010000U,
+    .version = 0x00010100U,
     .name = "Pitchy",
     .num_params = 9,
     .params = {

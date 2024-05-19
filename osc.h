@@ -101,7 +101,7 @@ public:
 
             phi_ += w0_;
             phi_ = ((int) phi_ & buffer_mask_) + (phi_ - (int) phi_);
-            float out_sig = 0.5f * out_0 + 0.5f * out_1;
+            float out_sig = out_0 + out_1;
             out_sig = wet_ * out_sig * gate_wet + dry_ * in_sig * gate_dry;
             *(out_p) = osc_softclipf(0.1f, out_sig * input_gain_);
         }

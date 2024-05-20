@@ -95,7 +95,7 @@ public:
             // the output is the 1:1 mix of out_0 and out_1
             // where out_1 precedes out_0 by (buffer_size_ / 2).
             float out_0 = grain_read(phi_) * buf_distance(phi_, grain_pos_);
-            float phi1 = ((int) phi_ + (buffer_size_ >> 1));
+            float phi1 = phi_ + (buffer_size_ >> 1);
             phi1 = ((int) phi1 & buffer_mask_) + (phi1 - (int) phi1);
             float out_1 = grain_read(phi1) * buf_distance(phi1, grain_pos_);
 

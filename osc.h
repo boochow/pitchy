@@ -12,6 +12,8 @@
 #include <climits>
 
 #include "unit_osc.h"   // Note: Include base definitions for osc units
+#include "dsp/biquad.hpp"
+#include "fx_api.h"
 
 // the note number which plays grain in the normal pitch
 constexpr uint8_t base_note = 53;
@@ -61,6 +63,10 @@ public:
 
         runtime_desc_ = *desc;
 
+        hpf_.flush();
+        float wc = hpf_.mCoeffs.wc(hpf_freq(), fs_recipf());
+        hpf_.mCoeffs.setSOHP(fx_tanpif(wc), 0.707);
+
         return k_unit_err_none;
     }
 
@@ -90,7 +96,7 @@ public:
         for (; out_p != out_e; in_p += 2, out_p += 1) {
             float in_sig = *in_p + *(in_p + 1);
 
-            grain_write(in_sig, grain_delay_depth_);
+            grain_write(hpf_.process_so(in_sig), grain_delay_depth_);
 
             // the output is the 1:1 mix of out_0 and out_1
             // where out_1 precedes out_0 by (buffer_size_ / 2).
@@ -108,6 +114,8 @@ public:
     }
 
     inline void setParameter(uint8_t index, const int32_t value) {
+        float wc;
+
         switch(index) {
         case SHAPE:
             w0_ = shape_w0_value( (value < 500) ? (value - 500) * 0.002 :
@@ -123,6 +131,8 @@ public:
                 buffer_mask_ = buffer_size_ - 1;
                 grain_pos_ = 2;
                 phi_ = 0.f;
+                wc = hpf_.mCoeffs.wc(hpf_freq(), fs_recipf());
+                hpf_.mCoeffs.setSOHP(fx_tanpif(wc), 0.707);
             }
             break;
         case GRAIN_DEPTH:
@@ -219,6 +229,7 @@ private:
     float wet_ = 1.f;
     int32_t gate_dry_ = 0;
     int32_t gate_wet_ = 0;
+    dsp::BiQuad hpf_;
 
     // calcurate w0 for the SHAPE knob
     float shape_w0_value(float p) { // -1.0 <= p <= 1.0
@@ -250,5 +261,13 @@ private:
             result = buffer_size_ - result;
         }
         return result * 2 / buffer_size_;
+    }
+
+    inline float fs_recipf() {
+        return 1.f / runtime_desc_.samplerate;
+    }
+
+    inline float hpf_freq() {
+        return 2.5f * runtime_desc_.samplerate / buffer_size_;
     }
 };
